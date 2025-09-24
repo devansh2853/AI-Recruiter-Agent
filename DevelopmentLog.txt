@@ -1,0 +1,52 @@
+Day 1:
+Setup the project folder structure
+did pip install composio and tried to import it. Got an AttributeError: module 'typing' has no attribute 'TypeAlias'. I was using python3.9 which didn't support typing.TypeAlias
+Deleted the virtual env and created a new one in python 3.10
+
+Major Friction Point:
+    1. Testing Google Provider
+    I was following the docs to test out the Google provider. I copied the pip installation commands as well as the code and added my own userId, api key.
+    Got an error. ModuleNotFoundError: No module named 'composio_gemini'. In the docs, the pip installation line installs composio_google but the code was importing composio_gemini which I thought was a mistake so I replaced composio_gemini with composio_google in my code.
+    Then I got the error ImportError: cannot import name 'GeminiProvider' from 'composio_google'. Did you mean 'GoogleProvider'. I went along and replaced the terms. 
+    Then I got a google.genai.errors.ClientError: 400 INVALID_ARGUMENT
+
+    I assumed that the pip install command was wrong and I ran pip install composio_gemini and reset the code back to how the docs said. This now worked. 
+    Conclusion: The pip installation command in the Setup section of the Google Provider docs is wrong. 
+    Current: pip install google-genai composio_google
+    Correct: pip install google-genai composio_gemini
+
+    2. On the executing tools section of googlecalendar using Google (python), there is the a similar problem.
+    I tried the default code to get a response of What can you do with Googlecalendar? and I got errors. Replaced composio_google with composio_gemini and GoogleProvider with GeminiProvider and started working finally.
+    Then I started getting a weird response from the LLM which said: text="I am sorry, I cannot fulfill this request. There seems to be an issue with the API. Please try again later."
+
+    The error in the response object said: 'error': 'Subscripted generics cannot be used with class and instance checks'
+
+    I got this error while trying to add data to a google sheet. I was able to create them without any issues however. 
+
+    Switched projects after this because of suggestions from Sujay and there was no need for google sheets in that project.
+
+
+    Then I tried using the Google Docs tools with GeminiProvider to create a doc with some text. Worked perfectly. Then I tried to update some text in an existing document. Provided the doc name and ID inside the prompt itself, but no matter what I did, I was always getting a response saying that a new doc has been created with the given data.
+
+
+Day 2:
+    Initializing:
+    Create a github repository and pushed the project structure.
+    I am using a hybrid approach of python and JS. Python for handling the GeminiProvider chats.
+    JS for the front end and node.JS/express.js for the server
+
+
+    Creating Utility Functions:
+    After I used the Google doc tools succesfully yesterday, creating the createGoogleDoc and extractResume functions were very easy as the only thing changing was the prompt and the toolkit being passed.
+    
+
+
+    
+
+
+    
+
+
+
+
+
