@@ -5,7 +5,7 @@ from google.genai import types
 import os
 from dotenv import load_dotenv
 
-from resumeTools import extractResume
+from resumeTools import extractResume, cleanLLMJson, parsePDF, generateQuestions, generateReport
 from DocUtils import createGoogleDoc
 
 import json
@@ -17,41 +17,47 @@ composio = Composio(api_key=os.getenv("COMPOSIO_API_KEY"), provider=GeminiProvid
 
 client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
 
-resume = """
-John Doe
-Email: john.doe@example.com
-Phone: +1-555-123-4567
+def handleResume(resume_path):
 
-Professional Summary:
-Software engineer with 5 years of experience in full-stack development. Proficient in Python, Node.js, React, and cloud technologies (AWS, GCP).
+    #Parse PDF text from file
+    pdf_text = parsePDF(resume_path)
 
-Work Experience:
-- Software Engineer, TechCorp, 2019-2022
-  Worked on backend APIs, database optimization, and deployment pipelines.
-- Junior Developer, WebSolutions, 2017-2019
-  Assisted in developing frontend features and API integration.
+    #Extract Candidate Info using LLM
+    resumeLLMCall = extractResume(pdf_text, composio, client)
+    if !resumeLLMCall['successfull']:
+        return {
+            "successfull": False,
+            "error": "Unable to extract Resume"
+        }
 
-Education:
-- B.Tech in Computer Science, University of California, 2013-2017
+    extracted_resume = resumeLLMCall['response']
 
-Certifications:
-- AWS Certified Solutions Architect
-- Google Cloud Professional Data Engineer
+    #Clean the LLM Response
+    cleaned_resume = cleanLLMJson(extracted_resume)
 
-Skills:
-Python, Node.js, React, AWS, GCP, SQL, Docker, Kubernetes
+    #Get Candidate Dictionary
+    candidate_json = json.loads(cleaned_resume)
 
-Languages:
-English, Spanish
-"""
+    #Generate Questions using LLM
+    questionsLLMCall = generateQuestions(candidate_json, composio, client)
+    if !questionsLLMCall['successfull']: 
+        return {
+            'successfull': False,
+            'error': f"Unable to Generate questions because of the following error: {questionsLLMCall['error']}"
+        }
+    questions = questionsLLMCall['response']
 
-raw_text = extractResume(resume, composio, client).text
+    #Clean the LLM questions response
+    cleaned_questions = cleanLLMJson(questions)
 
-if raw_text.startswith("```"):
-        raw_text = re.sub(r"^```json", "", raw_text)
-        raw_text = re.sub(r"^```", "", raw_text)
-        raw_text = re.sub(r"```$", "", raw_text)
-        raw_text = raw_text.strip()
-doc_text = json.loads(raw_text)
-print(doc_text)
+    #Generate questions dictionary
+    questions_json = json.loads(cleaned_questions)
 
+    #Generate the Report
+    doc_text = generateReport(candidate_json, questions_json)
+
+    #Create the Google Document of the candidate's report using the LLM
+    createGoogleDoc(doc_text, f"{candidate_json['name']} Report", composio, client)
+
+
+    
