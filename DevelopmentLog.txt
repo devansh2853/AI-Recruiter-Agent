@@ -40,6 +40,20 @@ Day 2:
     After I used the Google doc tools succesfully yesterday, creating the createGoogleDoc and extractResume functions were very easy as the only thing changing was the prompt and the toolkit being passed.
     
 
+Day 3:
+    Creating the main resumeHandling logic:
+    Created utility functions like: cleanLLMJson to remove extra characters added by gemini in the json string
+                                    extractResume to get the candidate details which is converted to a valid dictionary format using the other utility functions
+                                    generateQuestions which sends a prompt to the LLM with the candidate details dictionary to generate relevant questions.
+                                    generateReport which uses the questions and the candidate dictionary to generate the report
+                                    generateGoogleDoc which creates the google document from the generated report.
+
+    All the functions using the LLM have the same structure. Only the prompt and the tools differ, so there was no difficulty in making these.
+
+    Created a simple logic that does all these steps in logical succession while handling exceptions.
+
+
+
 
     
 
