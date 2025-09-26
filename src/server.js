@@ -3,11 +3,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import db from '../db.js';
-import composio from './utils/composio.js';
+import db from './db.js';
+import composio from './config/composio.js';
 import { getAuthConfigIdForProvider } from './config/authConfigs.js';
 import { AuthScheme } from '@composio/core';
-import { handleMailTrigger } from './MailToNotionLog.js';
 
 
 const app = express();
@@ -26,8 +25,6 @@ app.post('/auth/signup', async (req, res) => {
         const passwordHash = await bcrypt.hash(password, 10);
         const stmt = db.prepare('INSERT INTO users (id, username, password_hash, created_at) VALUES (?, ?, ?, ?)');
         stmt.run(userId, username, passwordHash, Date.now());
-        const user_settings_init = db.prepare('INSERT INTO user_settings (user_id, created_at) VALUES (?, ?)');
-        user_settings_init.run(userId, Date.now());
         return res.json({ user_id: userId });
     } catch (err) {
         if (String(err.message).includes('UNIQUE')) return res.status(409).json({ error: 'username taken' });
@@ -62,11 +59,7 @@ app.get('/users/:userId', (req, res) => {
 app.get('/users/:userId/connections/status', (req, res) => {
     const { userId } = req.params;
     const rows = db.prepare('SELECT provider, connection_id FROM user_connections WHERE user_id = ?').all(userId);
-    const status = { gmail: false, notion: false, gemini: false, trigger: false, db_status: false };
-    const trigger = db.prepare('SELECT triggerId from user_settings WHERE user_id = ?').get(userId);
-    const db_status = db.prepare('SELECT notion_database_id from user_settings WHERE user_id = ?').get(userId);
-    if (db_status.notion_database_id != null) status.db_status = true;
-    if (trigger.triggerId != null) status.trigger = true;
+    const status = { gmail: false, docs: false};
     for (const r of rows) {
         if (r.provider in status) status[r.provider] = !!r.connection_id;
     }
@@ -84,54 +77,20 @@ app.post('/users/:userId/connections/initiate', async (req, res) => {
         if (!authConfigId) return res.status(400).json({ error: 'unknown provider' });
         
         let cr;
-        if (provider === 'gemini' && api_key) {
-            // For Gemini, use API key authentication (immediate connection)
-            cr = await composio.connectedAccounts.initiate(
-                userId,
-                authConfigId,
-                {
-                    config: AuthScheme.APIKey({
-                        api_key: api_key
-                    })
-                }
-            );
-            
-            // Gemini connections are immediate, so finalize right away
-            const connected = await composio.connectedAccounts.get(cr.id);
-            const existing = db.prepare('SELECT connection_id FROM user_connections WHERE user_id = ? AND provider = ?').get(userId, provider);
-            if (existing && existing.connection_id && existing.connection_id !== connected.id) {
-                try { await composio.connectedAccounts.delete(existing.connection_id); } catch (e) { /* ignore cleanup errors */ }
+        // For other providers, use OAuth flow
+        const connections = db.prepare('SELECT connection_id, provider FROM user_connections WHERE user_id = ?').all(userId);
+        //Delete existing connection
+        for (const connection of connections) {
+            if (connection.provider === provider) {
+                await composio.connectedAccounts.delete(connection.connection_id);
+                db.prepare('DELETE FROM user_connections WHERE user_id = ? AND provider = ?').run(userId, provider);
             }
-            db.prepare('INSERT INTO user_connections (user_id, provider, connection_id, created_at) VALUES (?, ?, ?, ?) ON CONFLICT(user_id, provider) DO UPDATE SET connection_id = excluded.connection_id').run(userId, provider, connected.id, Date.now());
-            
-            return res.json({ 
-                connection_request_id: cr.id, 
-                redirect_url: null, // No redirect needed for API key auth
-                immediate: true,
-                connection_id: connected.id
-            });
-        } else {
-            // For other providers, use OAuth flow
-            const connections = db.prepare('SELECT connection_id, provider FROM user_connections WHERE user_id = ?').all(userId);
-            for (const connection of connections) {
-                if (connection.provider === provider) {
-                    await composio.connectedAccounts.delete(connection.connection_id);
-                    db.prepare('DELETE FROM user_connections WHERE user_id = ? AND provider = ?').run(userId, provider);
-                    const trigger = db.prepare('SELECT triggerId from user_settings where user_id = ?').get(userId);
-                    if (trigger.triggerId != null) {
-                        if (provider !== 'gmail') await composio.triggers.delete(trigger.triggerId);
-                        db.prepare('UPDATE user_settings SET triggerId = NULL where user_id = ?').run(userId);
-
-                    }
-                    if (provider === 'notion') {
-                        db.prepare('UPDATE user_settings SET notion_database_id = NULL where user_id = ?').run(userId);
-                    }
-                }
-            }
-            cr = await composio.connectedAccounts.initiate(userId, authConfigId);
-            db.prepare('INSERT INTO pending_connections (user_id, provider, connection_request_id, created_at) VALUES (?, ?, ?, ?)').run(userId, provider, cr.id, Date.now());
-            return res.json({ connection_request_id: cr.id, redirect_url: cr.redirectUrl });
         }
+
+        //Create New Connection
+        cr = await composio.connectedAccounts.initiate(userId, authConfigId);
+        db.prepare('INSERT INTO pending_connections (user_id, provider, connection_request_id, created_at) VALUES (?, ?, ?, ?)').run(userId, provider, cr.id, Date.now());
+        return res.json({ connection_request_id: cr.id, redirect_url: cr.redirectUrl });
     } catch (err) {
         console.log(err.message);
         return res.status(500).json({ error: 'failed to initiate connection' });

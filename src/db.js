@@ -28,13 +28,6 @@ CREATE TABLE IF NOT EXISTS user_connections (
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-// CREATE TABLE IF NOT EXISTS user_settings (
-//     user_id TEXT PRIMARY KEY,
-//     triggerId TEXT DEFAULT NULL,
-//     notion_database_id TEXT DEFAULT NULL,
-//     created_at INTEGER NOT NULL,
-//     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-// );
 
 CREATE TABLE IF NOT EXISTS pending_connections (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

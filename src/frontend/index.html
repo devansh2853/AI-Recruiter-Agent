@@ -58,8 +58,7 @@
           authSection.style.display = '';
           userSection.style.display = 'none';
           document.getElementById('gmailStatus').textContent = 'Not connected';
-          document.getElementById('notionStatus').textContent = 'Not connected';
-          document.getElementById('geminiStatus').textContent = 'Not connected';
+          document.getElementById('docsStatus').textContent = 'Not connected';
         }
       }
 
@@ -137,10 +136,7 @@
           const r = await fetch(`/users/${userId}/connections/status`);
           const s = await r.json();
           document.getElementById('gmailStatus').textContent = s.gmail ? 'Connected ✓' : 'Not connected';
-          document.getElementById('notionStatus').textContent = s.notion ? 'Connected ✓' : 'Not connected';
-          document.getElementById('geminiStatus').textContent = s.gemini ? 'Connected ✓' : 'Not connected';
-          document.getElementById('triggerStatus').textContent = s.trigger ? 'Created ✓' : 'Not created';
-          if (s.db_status) document.getElementById('notionDB').style.display='none';
+          document.getElementById('docsStatus').textContent = s.notion ? 'Connected ✓' : 'Not connected';
         } catch (e) {
           out('Failed to fetch connection statuses');
         }
