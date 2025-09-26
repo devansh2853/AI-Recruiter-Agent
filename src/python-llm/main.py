@@ -27,7 +27,7 @@ def handleResume(resume_path):
     if not resumeLLMCall['successful']:
         return {
             "successful": False,
-            "error": "Unable to extract Resume"
+            "error": f"Unable to extract Resume: ${resumeLLMCall['error']}"
         }
 
     extracted_resume = resumeLLMCall['response']

@@ -130,6 +130,26 @@
         }
     }
 
+      async function uploadResume() {
+        if (!userId) return out("No user logged in");
+        const fileInput = document.getElementById('resumeFile');
+        if (!fileInput.files.length) {
+          return alert('Please select a file first')
+        }
+        const formData = new FormData();
+        formData.append("resume", fileInput.files[0]);
+        try {
+          const r = await fetch(`/users/${userId}/resume`, {
+            method: 'POST',
+            body: formData
+          });
+          const j = await r.json();
+          out(JSON.stringify(j));
+        }
+        catch (err) {
+          out(`Error uploading resume: ${err.message}`);
+        }
+      }
       async function refreshStatuses() {
         if (!userId) return;
         try {

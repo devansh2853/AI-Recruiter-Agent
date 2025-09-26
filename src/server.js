@@ -7,9 +7,30 @@ import db from './db.js';
 import composio from './config/composio.js';
 import { getAuthConfigIdForProvider } from './config/authConfigs.js';
 
+import multer from 'multer';
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        console.log('Uploading to folder uploads')
+    cb(null, 'uploads/'); // keep the folder in root
+  },
+  filename: (req, file, cb) => {
+    // Use the default random name + .pdf
+      const ext = '.pdf';
+      const filename = file.fieldname + '-' + Date.now() + ext;
+        console.log('Saving file as:', filename);
+    cb(null, file.fieldname + '-' + Date.now() + ext);
+  }
+});
+
+
+// const upload = multer({ dest: "uploads/" });
+const upload = multer({storage: storage});
+
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Serve static frontend
 const __filename = fileURLToPath(import.meta.url);
@@ -125,31 +146,19 @@ app.post('/users/:userId/connections/finalize-latest', async (req, res) => {
     }
 });
 
-
-// This is the webhook endpoint that will receive Gmail trigger events
-app.post("/gmail-webhook", async (req, res) => {
-    try {
-        const user_id = req.body.data?.user_id || req.body.data?.extras?.user_id || "";
-        const users = db.prepare('SELECT id FROM users WHERE id = ?').get(user_id);
-        if (!users) return { successful: true, message: "Ignored: no valid user_id in payload" };
-        console.log("Gmail trigger received");
-        const handleTrigger = await handleMailTrigger(req.body.data);
-        if (!handleTrigger.successful) {
-            console.log(handleTrigger.error);
-            res.status(500).send("Error handling mail trigger");
-        }
-        else {
-            console.log(handleTrigger.message);
-            console.log("Trigger successfully handled");
-            res.status(200).send(handleTrigger.message);
-        }
+//Handle File Upload
+app.post('/users/:userId/resume', upload.single('resume'), (req, res) => {
+    const { userId } = req.params;
+    console.log(userId);
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: "No resume file uploaded" });
     }
-    catch (err) {
-        console.log(err.message);
-        res.status(500).send("Error handling mail trigger");
-    }
-    
+    // Full path of uploaded resume
+    const resumePath = req.file.path;
+    console.log(resumePath);
+    return res.status(200).json({ ok: true, path: resumePath });
 });
+
 
 const PORT = 3000;
 app.listen(PORT, () => {
