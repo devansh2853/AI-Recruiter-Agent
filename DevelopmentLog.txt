@@ -52,14 +52,18 @@ Day 3:
 
     Created a simple logic that does all these steps in logical succession while handling exceptions.
 
-    Settings up the server and frontend:
+    Settings up the server and frontend(JS):
     Copied the same server and frontend from the first project and edited them to match the current project.
 
     Setting up resume upload:
     Used multer to save the files temporarily to the uploads/ folder. 
     Created the logic for uploading the files on clicking the upload button.
 
-    
+    Used Multer to spawn python resumehandling logic
+
+
+
+
 
 
 
