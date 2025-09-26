@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from 'uuid';
 import db from './db.js';
 import composio from './config/composio.js';
 import { getAuthConfigIdForProvider } from './config/authConfigs.js';
-import { AuthScheme } from '@composio/core';
 
 
 const app = express();
@@ -70,7 +69,7 @@ app.get('/users/:userId/connections/status', (req, res) => {
 // Initiate a Composio connection for a provider using an authConfigId
 app.post('/users/:userId/connections/initiate', async (req, res) => {
     const { userId } = req.params;
-    const { provider, api_key } = req.body;
+    const { provider } = req.body;
     if (!provider) return res.status(400).json({ error: 'provider required' });
     try {
         const authConfigId = getAuthConfigIdForProvider(provider);

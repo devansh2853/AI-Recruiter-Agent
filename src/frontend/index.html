@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Mail → Notion Setup</title>
+    <title>AI Recruiter Agent</title>
   </head>
   <body>
     <h2>Auth</h2>
@@ -136,7 +136,7 @@
           const r = await fetch(`/users/${userId}/connections/status`);
           const s = await r.json();
           document.getElementById('gmailStatus').textContent = s.gmail ? 'Connected ✓' : 'Not connected';
-          document.getElementById('docsStatus').textContent = s.notion ? 'Connected ✓' : 'Not connected';
+          document.getElementById('docsStatus').textContent = s.docs ? 'Connected ✓' : 'Not connected';
         } catch (e) {
           out('Failed to fetch connection statuses');
         }
