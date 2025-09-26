@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "init-db": "node db.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/devansh2853/AI-Recruiter-Agent/issues"
   },
-  "homepage": "https://github.com/devansh2853/AI-Recruiter-Agent#readme"
+  "homepage": "https://github.com/devansh2853/AI-Recruiter-Agent#readme",
+  "dependencies": {
+    "@composio/core": "^0.1.52",
+    "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.4.1",
+    "express": "^5.1.0"
+  }
 }
