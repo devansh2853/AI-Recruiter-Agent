@@ -8,6 +8,8 @@ import composio from './config/composio.js';
 import { getAuthConfigIdForProvider } from './config/authConfigs.js';
 
 import multer from 'multer';
+import { spawn } from 'child_process';
+
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -151,12 +153,38 @@ app.post('/users/:userId/resume', upload.single('resume'), (req, res) => {
     const { userId } = req.params;
     console.log(userId);
     if (!req.file) {
-      return res.status(400).json({ success: false, error: "No resume file uploaded" });
+      return res.status(400).json({ ok: false, error: "No resume file uploaded" });
     }
     // Full path of uploaded resume
     const resumePath = req.file.path;
-    console.log(resumePath);
-    return res.status(200).json({ ok: true, path: resumePath });
+    const python = spawn('python3', ['src/python-llm/main.py', resumePath]);
+
+    let output = '';
+    let errorOutput = '';
+
+    // Collect stdout data
+    python.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    // Collect stderr data
+    python.stderr.on('data', (data) => {
+      errorOutput += data.toString();
+    });
+
+    python.on('close', (code) => {
+        if (code !== 0) {
+            console.log("Failed");
+            return res.status(400).json({ok: false, error: `Python process exited with code ${code}: ${errorOutput}`})
+      }
+      try {
+        const result = JSON.parse(output); // Expect JSON string from Python
+          if (!result.successful) return res.status(400).json({ ok: false, error: result.error })
+          return res.status(200).json({ok: true})
+      } catch (err) {
+        return res.status(400).json({ok: false, error: `Failed to parse python output: ${output}`})
+      }
+    });
 });
 
 

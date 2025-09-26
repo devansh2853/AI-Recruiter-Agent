@@ -138,6 +138,7 @@
         }
         const formData = new FormData();
         formData.append("resume", fileInput.files[0]);
+        out("In Progress..........");
         try {
           const r = await fetch(`/users/${userId}/resume`, {
             method: 'POST',

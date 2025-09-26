@@ -10,6 +10,7 @@ from DocUtils import createGoogleDoc
 
 import json
 import re
+import sys
 
 load_dotenv()
 
@@ -67,7 +68,14 @@ def handleResume(resume_path):
         'successful': True,
     }
 
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print(json.dumps({"successful": False, "error": "No resume path provided"}))
+        sys.exit(1)
 
+    resume_path = sys.argv[1]
+    result = handleResume(resume_path)
+
+    # Print JSON to stdout
+    print(json.dumps(result))
     
-handle = handleResume('uploads/latest_resume.pdf')
-print(handle)
