@@ -24,9 +24,9 @@ def handleResume(resume_path):
 
     #Extract Candidate Info using LLM
     resumeLLMCall = extractResume(pdf_text, composio, client)
-    if !resumeLLMCall['successfull']:
+    if not resumeLLMCall['successful']:
         return {
-            "successfull": False,
+            "successful": False,
             "error": "Unable to extract Resume"
         }
 
@@ -40,9 +40,9 @@ def handleResume(resume_path):
 
     #Generate Questions using LLM
     questionsLLMCall = generateQuestions(candidate_json, composio, client)
-    if !questionsLLMCall['successfull']: 
+    if not questionsLLMCall['successful']: 
         return {
-            'successfull': False,
+            'successful': False,
             'error': f"Unable to Generate questions because of the following error: {questionsLLMCall['error']}"
         }
     questions = questionsLLMCall['response']
@@ -57,7 +57,17 @@ def handleResume(resume_path):
     doc_text = generateReport(candidate_json, questions_json)
 
     #Create the Google Document of the candidate's report using the LLM
-    createGoogleDoc(doc_text, f"{candidate_json['name']} Report", composio, client)
+    doc_creation = createGoogleDoc(doc_text, f"{candidate_json['name']} Report", composio, client)
+    if not doc_creation['successful']:
+        return {
+            'successful': False,
+            'error': f"Unable to create doc because of the following error: {doc_creation['error']}"
+        }
+    return {
+        'successful': True,
+    }
 
 
     
+handle = handleResume('uploads/latest_resume.pdf')
+print(handle)

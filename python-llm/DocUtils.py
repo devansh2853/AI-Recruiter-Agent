@@ -23,8 +23,14 @@ def createGoogleDoc(doc_text, doc_name, composio, client):
     prompt = f"Create a new Google Doc named '{doc_name}' with the following text: {doc_text}"
     try:
         response = chat.send_message(prompt)
-        return response
+        return {
+            'successful': True,
+            'response': response.text
+        }
     except Exception as e:
-        return f"Error: {str(e)}"
+        return {
+            'successful': False,
+            'error': str(e)
+        }
 
 
