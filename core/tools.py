@@ -8,10 +8,18 @@ from dotenv import load_dotenv
 import pdfplumber
 import re
 
+
 load_dotenv()
 
 composio = Composio(api_key=os.getenv("COMPOSIO_API_KEY"), provider=GeminiProvider())
 client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+
+def parse_pdf(file_path):
+    text = ""
+    with pdfplumber.open(file_path) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text() + "\n"
+    return text
 
 
 def parsePDF(file_path):
@@ -185,3 +193,27 @@ def generateReport(candidate_json, questions_json):
         report_lines.append(f"{idx}. {q}")
     
     return "\n".join(report_lines)
+
+
+def createGoogleDoc(doc_text, doc_name, composio, client):
+    config = types.GenerateContentConfig(
+        tools = composio.tools.get(
+            user_id="devansh",
+            toolkits=[
+                "GOOGLEDOCS"
+            ],
+        )
+    )
+    chat = client.chats.create(model="gemini-2.0-flash", config=config)
+    prompt = f"Create a new Google Doc named '{doc_name}' with the following text: {doc_text}"
+    try:
+        response = chat.send_message(prompt)
+        return {
+            'successful': True,
+            'response': response.text
+        }
+    except Exception as e:
+        return {
+            'successful': False,
+            'error': str(e)
+        }
