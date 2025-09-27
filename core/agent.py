@@ -10,13 +10,13 @@ class RecruiterAgent:
     def __init__(self):
         self.composio = composio
         self.client = client
-    def handleResume(resume_path):
+    def handleResume(self, resume_path, userId):
 
         #Parse PDF text from file
         pdf_text = parsePDF(resume_path)
 
         #Extract Candidate Info using LLM
-        resumeLLMCall = extractResume(pdf_text, composio, client)
+        resumeLLMCall = extractResume(pdf_text, self.composio, self.client)
         if not resumeLLMCall['successful']:
             return {
                 "successful": False,
@@ -32,7 +32,7 @@ class RecruiterAgent:
         candidate_json = json.loads(cleaned_resume)
 
         #Generate Questions using LLM
-        questionsLLMCall = generateQuestions(candidate_json, composio, client)
+        questionsLLMCall = generateQuestions(candidate_json, self.composio, self.client)
         if not questionsLLMCall['successful']: 
             return {
                 'successful': False,
@@ -50,15 +50,15 @@ class RecruiterAgent:
         doc_text = generateReport(candidate_json, questions_json)
 
         #Create the Google Document of the candidate's report using the LLM
-        doc_creation = createGoogleDoc(doc_text, f"{candidate_json['name']} Report", composio, client)
+        doc_creation = createGoogleDoc(doc_text, f"{candidate_json['name']} Report", self.composio, self.client, userId)
         if not doc_creation['successful']:
             return {
                 'successful': False,
                 'error': f"Unable to create doc because of the following error: {doc_creation['error']}"
             }
-        emailCall = sendEmail()
         return {
             'successful': True,
+            'candidate': candidate_json['name']
         }
 
 

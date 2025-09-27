@@ -195,10 +195,10 @@ def generateReport(candidate_json, questions_json):
     return "\n".join(report_lines)
 
 
-def createGoogleDoc(doc_text, doc_name, composio, client):
+def createGoogleDoc(doc_text, doc_name, composio, client, userId):
     config = types.GenerateContentConfig(
         tools = composio.tools.get(
-            user_id="devansh",
+            user_id=userId,
             toolkits=[
                 "GOOGLEDOCS"
             ],

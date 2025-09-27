@@ -1,6 +1,7 @@
 import sys
 import pyfiglet
 from core.agent import RecruiterAgent
+from core.connections import authenticate_gmail, authenticate_docs, saveuser, getuser
 
 
 def show_banner():
@@ -25,18 +26,64 @@ def repl():
 
             if command == "help":
                 print("Available commands:")
+                print("  connect         Create Gmail and notion/google doc connections")
                 print("  resume <path>   Process a resume PDF")
                 print("  exit / quit     Exit the program")
                 continue
 
-            if command.startswith("resume "):
-                _, path = command.split(" ", 1)
-                result = agent.handle_resume(path)
-                if result["successful"]:
-                    print(f"✅ Resume processed for {result['candidate']}")
+            if command == 'connect':
+                user = getuser()
+                if not user:
+                    userId = input("Enter username (no spaces)").strip()
+                    while not userId:
+                        userId = input("Please enter valid username").strip()
+                    print("Connecting to Gmail..... \n")
+                    authenticate_gmail(userId)
+                    saveuser(userId, True, False)
+                    print("Connecting to Google Documents..... \n")
+                    authenticate_docs(userId)
+                    saveuser(userId, True, True)
                 else:
-                    print(f"❌ Error: {result['error']}")
-                continue
+                    if user['gmail'] and user['docs']:
+                        rewrite = input("Connections found. Would you like to overwrite them? (y/n)").strip()
+                        if (rewrite.lower() == 'y'):
+                            userId = user['userId']
+                            print("Connecting to Gmail..... \n")
+                            authenticate_gmail(userId)
+                            saveuser(userId, True, False)
+                            print("Connecting to Google Documents..... \n")
+                            authenticate_docs(userId)
+                            saveuser(userId, True, True)
+
+                    elif not user['gmail']:
+                        print("Connecting to Gmail..... \n")
+                        authenticate_gmail(userId)
+                        print("Docs already connected")
+                        saveuser(user['userId'], True, True)
+                    elif not user['docs']:
+                        print("Gmail already connected")
+                        print("Connecting to Google Documents..... \n")
+                        authenticate_docs(userId)
+                        saveuser(user['userId'], True, True)
+
+
+            if command.startswith("resume "):
+                user = getuser()
+                if not user:
+                    print("Connections to Gmail and Docs are pending")
+                elif not user['gmail']:
+                    print("Gmail Connection is pending")
+                elif not user['docs']:
+                    print("Google Docs connection is pending")
+                else:
+                    userId = user['userId']
+                    _, path = command.split(" ", 1)
+                    result = agent.handleResume(path, userId)
+                    if result["successful"]:
+                        print(f"✅ Resume processed for {result['candidate']}")
+                    else:
+                        print(f"❌ Error: {result['error']}")
+                    continue
 
             print("Unknown command. Type 'help' for options.")
 
