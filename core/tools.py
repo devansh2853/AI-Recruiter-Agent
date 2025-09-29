@@ -205,12 +205,59 @@ def createGoogleDoc(doc_text, doc_name, composio, client, userId):
         )
     )
     chat = client.chats.create(model="gemini-2.0-flash", config=config)
-    prompt = f"Create a new Google Doc named '{doc_name}' with the following text: {doc_text}"
+    prompt = f"""Create a new Google Doc named '{doc_name}' with the following text: {doc_text} and return the link of the google document. Return it in the form of a JSON Object. Follow this structure exactly:
+    {{
+        "link": "document link"
+    }}
+    """
     try:
         response = chat.send_message(prompt)
         return {
             'successful': True,
             'response': response.text
+        }
+    except Exception as e:
+        return {
+            'successful': False,
+            'error': str(e)
+        }
+
+
+def sendMail(candidate_json, doc_link, recipient_email, composio, userId):
+    highlights = []
+    if "experience_years" in candidate_json:
+        highlights.append(f"{candidate_json['experience_years']} years of experience")
+    if "skills" in candidate_json and candidate_json["skills"]:
+        highlights.append(f"Skilled in {', '.join(candidate_json['skills'][:3])}")  # just top 3
+    if "strengths" in candidate_json and candidate_json["strengths"]:
+        highlights.append(f"Strengths: {', '.join(candidate_json['strengths'][:2])}")  # 2 highlights
+        
+    summary_text = "\n".join(f"- {h}" for h in highlights)
+
+    key_highlights = f"Key Highlights: \n \n {summary_text}"
+
+    mail_body = f"""
+    Hello,
+    Please find the candidate report for {candidate_json['name']} attached below.
+
+    {key_highlights}
+
+    You can access the full report here: {doc_link}
+    """
+    arguments={
+        "body": mail_body,
+        "subject": f"{candidate_json['name']} Report",
+        "recipient_email": recipient_email  
+    }
+    try:
+        result = composio.tools.execute(
+        "GMAIL_SEND_EMAIL",
+        user_id=userId,
+        arguments=arguments
+        )
+        return {
+            'successful': True,
+            'response': result
         }
     except Exception as e:
         return {
