@@ -19,7 +19,7 @@ Copy `.env.example` to `.env`:
 cp .env.example .env
 ```
 
-Fill in your keys and auth config IDs after running `core/auth_config.py`.
+Fill in your Composio and Gemini API Keys. Leave the Auth Config IDs for now.
 
 ### 3. Set up Python environment with `uv`
 
