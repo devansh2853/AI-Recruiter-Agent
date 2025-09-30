@@ -21,24 +21,27 @@ cp .env.example .env
 
 Fill in your Composio and Gemini API Keys. Leave the Auth Config IDs for now.
 
-### 3. Set up Python environment with `uv`
+### 3. Install UV (if not installed)
+
+Follow the instructions from [UV installation guide](https://docs.astral.sh/uv/getting-started/installation/) or using curl.
+
+### 4. Set up Python environment with `uv`
 
 ```bash
-uv init  # Initialize UV in the project
-uv install  # Install dependencies from pyproject.toml and lock versions
+uv sync  # Install dependencies
 ```
 
-### 4. Create Auth Configs
+### 5. Create Auth Configs
 
 Run the auth config script to create Gmail and Google Docs auth configs:
 
 ```bash
-python3 core/auth_config.py
+uv python core/auth_config.py
 ```
 
 Copy the printed auth config IDs into your `.env` file.
 
-### 5. Connect your accounts
+### 6. Connect your accounts
 
 Run the main CLI:
 
@@ -54,11 +57,11 @@ connect
 
 Follow the prompts to connect your Gmail and Google Docs accounts. Make sure to allow all required permissions on the OAuth pages.
 
-### 6. Prepare resume
+### 7. Prepare resume
 
 Add the resume(s) you want to process into the `uploads/` folder.
 
-### 7. Process resume and send report
+### 8. Process resume and send report
 
 In the CLI, run:
 
