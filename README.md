@@ -28,7 +28,7 @@ Follow the instructions from [UV installation guide](https://docs.astral.sh/uv/g
 ### 4. Set up Python environment with `uv`
 
 ```bash
-uv sync  # Install dependencies
+uv sync
 ```
 
 ### 5. Create Auth Configs
