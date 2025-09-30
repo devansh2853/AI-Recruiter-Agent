@@ -332,8 +332,21 @@ def generateReport(candidate_json, questions_json):
     return "\n".join(report_lines)
 
 
-
 def isValidMail(email: str) -> bool:
     """Basic regex validation for email address."""
     regex = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
     return re.match(regex, email) is not None
+
+# arguments={
+#         "body": "Hello",
+#         "subject": "Report",
+#         "recipient_email": "devanshbansa2022@gmail.com"  
+#     }
+
+# result = composio.tools.execute(
+#         "GMAIL_SEND_EMAIL",
+#         user_id="devansh",
+#         arguments=arguments
+#         )
+
+# print(result)

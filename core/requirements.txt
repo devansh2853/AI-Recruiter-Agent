@@ -1,6 +1,0 @@
-# Core dependencies
-python-dotenv
-composio
-composio-gemini
-google-genai
-pdf-plumber

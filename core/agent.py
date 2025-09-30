@@ -69,7 +69,6 @@ class RecruiterAgent:
                 'error': f"Unable to create doc because of the following error: {doc_creation['error']}"
             }
         print(f"A google document containing the report of the candidate {candidate_json['name']} has been created")
-
         cleaned_doc = cleanLLMJson(doc_creation['response'])
         doc_link_json = json.loads(cleaned_doc)
 
@@ -84,6 +83,11 @@ class RecruiterAgent:
             return {
                 'successful': False,
                 'error': f"Unable to send mail because of the following error: {mail['error']}"
+            }
+        if not mail['response']['successful']:
+            return {
+                'successful': False,
+                'error': f"Unable to send email because of the following error: {mail['response']['error']}"
             }
         print("Mail Sent")
 
