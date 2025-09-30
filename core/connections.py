@@ -54,3 +54,27 @@ def getuser():
             except json.JSONDecodeError:
                 return {}
     return {}
+
+
+def ensure_connections(user_id: str, overwrite: bool = False):
+    """
+    Ensure that Gmail and Docs connections exist for a given user.
+    If missing (or overwrite=True), authenticate and save.
+    """
+    user = getuser()
+
+    gmail_connected = user.get("gmail", False)
+    docs_connected = user.get("docs", False)
+
+    if overwrite or not gmail_connected:
+        print("🔗 Connecting to Gmail...")
+        authenticate_gmail(user_id)
+        gmail_connected = True
+
+    if overwrite or not docs_connected:
+        print("🔗 Connecting to Google Docs...")
+        authenticate_docs(user_id)
+        docs_connected = True
+
+    saveuser(user_id, gmail_connected, docs_connected)
+    return getuser()

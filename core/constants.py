@@ -1,7 +1,6 @@
 from composio import Composio
 from composio_gemini import GeminiProvider
 from google import genai
-from google.genai import types
 import os
 from dotenv import load_dotenv
 

@@ -1,8 +1,12 @@
 import sys
+import os
 import pyfiglet
 from core.agent import RecruiterAgent
 from core.connections import authenticate_gmail, authenticate_docs, saveuser, getuser
 
+
+os.makedirs("uploads", exist_ok=True)
+RESUME_FOLDER = "uploads"
 
 def show_banner():
     banner = pyfiglet.figlet_format("AI Recruiter Agent")
@@ -20,18 +24,18 @@ def repl():
             if not command:
                 continue
 
-            if command in ["exit", "quit"]:
+            elif command in ["exit", "quit"]:
                 print("Goodbye!")
                 break
 
-            if command == "help":
+            elif command == "help":
                 print("Available commands:")
                 print("  connect         Create Gmail and notion/google doc connections")
                 print("  resume <path>   Process a resume PDF")
                 print("  exit / quit     Exit the program")
                 continue
 
-            if command == 'connect':
+            elif command == 'connect':
                 user = getuser()
                 if not user:
                     userId = input("Enter username (no spaces)").strip()
@@ -67,7 +71,7 @@ def repl():
                         saveuser(user['userId'], True, True)
 
 
-            if command.startswith("resume "):
+            elif command.startswith("resume "):
                 user = getuser()
                 if not user:
                     print("Connections to Gmail and Docs are pending")
@@ -77,7 +81,11 @@ def repl():
                     print("Google Docs connection is pending")
                 else:
                     userId = user['userId']
-                    _, path = command.split(" ", 1)
+                    _, filename = command.split(" ", 1)
+                    path = os.path.join(RESUME_FOLDER, filename)
+                    if not os.path.exists(path):
+                        print(f"❌ Resume file not found: {path}")
+                        return
                     result = agent.handleResume(path, userId)
                     if result["successful"]:
                         print(f"✅ Resume processed for {result['candidate']}")
@@ -85,7 +93,11 @@ def repl():
                         print(f"❌ Error: {result['error']}")
                     continue
 
-            print("Unknown command. Type 'help' for options.")
+            else:   
+                print("Unknown command.")
+            
+            print("Type 'help' for options.")
+            
 
         except KeyboardInterrupt:
             print("\nExiting...")

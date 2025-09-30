@@ -1,5 +1,5 @@
 from core.constants import composio, client
-from core.tools import extractResume, cleanLLMJson, parsePDF, generateQuestions, generateReport, createGoogleDoc, sendMail
+from core.tools import extractResume, cleanLLMJson, parsePDF, generateQuestions, generateReport, createGoogleDoc, sendMail, isValidMail
 
 import json
 import sys
@@ -30,7 +30,11 @@ class RecruiterAgent:
 
         #Get Candidate Dictionary
         candidate_json = json.loads(cleaned_resume)
-
+        if candidate_json['name'] == 'invalid' or not candidate_json['name']:
+            return {
+                'successful': False,
+                'error': "The uploaded PDF was not a valid resume"
+            }
         #Generate Questions using LLM
         questionsLLMCall = generateQuestions(candidate_json, self.composio, self.client)
         if not questionsLLMCall['successful']: 
@@ -70,6 +74,10 @@ class RecruiterAgent:
         doc_link_json = json.loads(cleaned_doc)
 
         recipient_email = input("Who do you me to mail the report to? (example@gmail.com): ").strip()
+        while not isValidMail(recipient_email):
+            print("❌ Invalid email address. Please try again.")
+            recipient_email = input("Who do you me to mail the report to? (example@gmail.com): ").strip()
+
 
         mail = sendMail(candidate_json, doc_link_json['link'], recipient_email, self.composio, userId)
         if not mail['successful']:
@@ -77,14 +85,8 @@ class RecruiterAgent:
                 'successful': False,
                 'error': f"Unable to send mail because of the following error: {mail['error']}"
             }
-        
         print("Mail Sent")
 
-        if not doc_creation['successful']:
-            return {
-                'successful': False,
-                'error': f"Unable to create doc because of the following error: {doc_creation['error']}"
-            }
         return {
             'successful': True,
             'candidate': candidate_json['name']
