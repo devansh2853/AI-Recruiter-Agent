@@ -1,138 +1,93 @@
 # AI Recruiter Agent
 
-AI Recruiter Agent is a terminal-based tool that processes a candidate's resume, generates relevant technical or behavioral interview questions, creates a structured Google Docs report, and emails it to a specified recipient.
-
----
-
-## Features
-
-- Extracts key information from resumes (skills, experience, education, certifications, languages).
-- Generates technical or behavioral interview questions tailored to the candidate.
-- Creates a professional Google Docs report with proper headings.
-- Sends the report via email to the specified recipient.
-
----
+An AI-powered recruiter assistant that processes candidate resumes, generates technical or behavioral interview questions, creates a structured report in Google Docs, and emails the report to the desired recipient.
 
 ## Project Structure
 
 ```
 AI-Recruiter-Agent/
-├── core/
-│   ├── agent.py          # Main agent logic & orchestration
-│   ├── constants.py      # Initialize and expose OpenAI + Composio clients
-│   ├── connections.py    # Create and manage external connections
-│   ├── auth_config.py    # Create, manage, and validate auth configuration
-│   └── tools.py          # Return tools to plug into the agent
-├── main.py               # Terminal CLI entry point
-├── README.md
-├── .env.example          # Example environment variables
-├── pyproject.toml
-├── uv.lock               # Locked package versions for uv
-├── Makefile
-└── uploads/              # Place resumes here for processing
+  core/
+    agent.py         # Main agent logic & orchestration
+    constants.py     # Initialize and expose OpenAI + Composio clients
+    connection.py    # Create and manage external connections
+    auth_config.py   # Create, manage, and validate auth configurations
+    tools.py         # Return the list of tools to plug into the agent
+  uploads/           # Add resumes to be processed here
+  main.py            # Entry point: interactive terminal CLI
+  README.md
+  .env.example
+  pyproject.toml     # Dependency management for uv
+  uv.lock            # Dependency lock file
+  Makefile
 ```
-
----
 
 ## Setup Instructions
 
 ### 1. Clone the repository
 
 ```bash
-git clone <repository_url>
+git clone <repo_url>
 cd AI-Recruiter-Agent
 ```
 
-### 2. Create a Python virtual environment
+### 2. Install UV (if not installed)
+
+Follow the instructions from [UV installation guide](https://uv.dev) or using curl.
+
+### 3. Install dependencies and create virtual environment
+
+UV will handle creating a virtual environment and installing all dependencies from `pyproject.toml`.
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate    # macOS/Linux
-venv\Scripts\activate       # Windows
-```
-
-### 3. Install `uv` (if not already installed)
-
-Follow [uv installation instructions](https://uvproject.org/) or via `curl`.
-
-### 4. Install dependencies using uv
-
-```bash
-uv add -r requirements.txt
 uv sync
 ```
 
-### 5. Configure authentication
+### 4. Configure Auth
 
-Run the `auth_config.py` script to create Composio auth configurations:
+Run the auth configuration script to generate Composio auth config IDs:
 
 ```bash
 python core/auth_config.py
 ```
 
-- Copy the printed **Auth Config IDs** into your `.env` file (refer to `.env.example`).
+Copy the printed `GMAIL_AUTH_CONFIG_ID` and `DOCS_AUTH_CONFIG_ID` values into your `.env` file.
 
-### 6. Connect external accounts
+### 5. Connect Gmail and Google Docs
 
-Start the CLI:
+Run the interactive CLI:
 
 ```bash
-python main.py
+uv run python main.py
 ```
 
-- Use the command `connect` to link Gmail and Google Docs accounts.
-- Follow the OAuth prompts and grant the required permissions.
+- Use the command `connect` to authenticate your Gmail and Google Docs accounts.
+- Follow the OAuth prompts in your browser.
 
-### 7. Add resumes
+### 6. Add resumes
 
-Place any resumes to be processed in the `uploads/` folder.
+Place the resumes you want to process in the `uploads/` folder.
 
-### 8. Process a resume
+### 7. Process a resume
 
-Run the command:
+In the CLI, run:
 
-```text
+```bash
 resume <filename>.pdf
 ```
 
-- Generates a Google Docs report.
-- Prompts for the recipient email.
-- Sends the report via email.
+- Example: `resume resume1.pdf`
+- The agent will process the resume, generate questions, create a Google Doc report, and prompt for the recipient email.
 
----
+### 8. Email the report
 
-## Commands
-
-| Command         | Description                              |
-| --------------- | ---------------------------------------- |
-| `connect`       | Connect Gmail and Google Docs accounts   |
-| `resume <file>` | Process a resume PDF and generate report |
-| `help`          | Show available commands                  |
-| `exit` / `quit` | Exit the CLI                             |
-
----
-
-## Environment Variables
-
-Copy `.env.example` to `.env` and fill in your keys:
-
-```text
-OPENAI_API_KEY=<your_openai_api_key>
-COMPOSIO_API_KEY=<your_composio_api_key>
-AUTHCFG_GMAIL=<gmail_auth_config_id>
-AUTHCFG_GDOCS=<google_docs_auth_config_id>
-```
-
----
+Provide the recipient's email in the CLI prompt. The report will be sent automatically from the connected Gmail account.
 
 ## Notes
 
-- `.python-version` ensures the correct Python version is used.
-- `uploads/` must exist, even if empty.
-- CLI shows the ASCII banner on startup.
-
----
+- Ensure the `.env` file is properly configured with the auth IDs and API keys.
+- The `uploads/` folder must contain the resumes to process.
+- UV manages the virtual environment and dependencies automatically, so there is no need to manually create a venv or install packages.
 
 ## License
 
-[MIT License](LICENSE)
+MIT License
