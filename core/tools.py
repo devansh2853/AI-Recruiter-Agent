@@ -119,69 +119,6 @@ def generateQuestions(candidate_json, composio, client):
         }
 
 
-# def generateReport(candidate_json, questions_json):
-#     """
-#     Generates a textual report for the candidate combining resume info and interview questions.
-
-#     Args:
-#         candidate_json (dict): Extracted candidate info from resume.
-#         questions_json (dict): Generated questions.
-
-#     Returns:
-#         str: Formatted report text.
-#     """
-#     report_lines = []
-
-#     # Candidate basic info
-#     report_lines.append(f"Candidate Name: {candidate_json.get('name', 'N/A')}")
-#     report_lines.append(f"Email: {candidate_json.get('email', 'N/A')}")
-#     report_lines.append(f"Phone: {candidate_json.get('phone', 'N/A')}")
-#     report_lines.append(f"Experience (years): {candidate_json.get('experience_years', 'N/A')}")
-#     report_lines.append("")
-
-#     # Skills
-#     skills = candidate_json.get("skills", [])
-#     report_lines.append("Skills:")
-#     for skill in skills:
-#         report_lines.append(f"- {skill}")
-#     report_lines.append("")
-
-#     # Companies
-#     companies = candidate_json.get("companies", [])
-#     report_lines.append("Previous Companies:")
-#     for company in companies:
-#         report_lines.append(f"- {company}")
-#     report_lines.append("")
-
-#     # Education
-#     education = candidate_json.get("education", [])
-#     report_lines.append("Education:")
-#     for edu in education:
-#         report_lines.append(f"- {edu}")
-#     report_lines.append("")
-
-#     # Certifications
-#     certifications = candidate_json.get("certifications", [])
-#     report_lines.append("Certifications:")
-#     for cert in certifications:
-#         report_lines.append(f"- {cert}")
-#     report_lines.append("")
-
-#     # Languages
-#     languages = candidate_json.get("languages", [])
-#     report_lines.append("Languages:")
-#     for lang in languages:
-#         report_lines.append(f"- {lang}")
-#     report_lines.append("")
-
-#     # Interview Questions
-#     report_lines.append("Generated Interview Questions:")
-#     for idx, q in enumerate(questions_json.get("questions", []), 1):
-#         report_lines.append(f"{idx}. {q}")
-    
-#     return "\n".join(report_lines)
-
-
 def createGoogleDoc(doc_text, doc_name, composio, client, userId):
     config = types.GenerateContentConfig(
         tools = composio.tools.get(
@@ -337,16 +274,3 @@ def isValidMail(email: str) -> bool:
     regex = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
     return re.match(regex, email) is not None
 
-# arguments={
-#         "body": "Hello",
-#         "subject": "Report",
-#         "recipient_email": "devanshbansa2022@gmail.com"  
-#     }
-
-# result = composio.tools.execute(
-#         "GMAIL_SEND_EMAIL",
-#         user_id="devansh",
-#         arguments=arguments
-#         )
-
-# print(result)
