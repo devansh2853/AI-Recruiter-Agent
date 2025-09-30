@@ -26,7 +26,10 @@ def authenticate_gmail(user_id: str):
         if user.get("gmail_connection_id", False):
             composio.connected_accounts.delete(user.get("gmail_connection_id"))
     except Exception as e:
-        composio.connected_accounts.delete(connection_request.id)
+        try:
+            composio.connected_accounts.delete(connection_request.id)
+        except Exception as f:
+            pass
         retry = input("⏱ Gmail authentication timed out. Would you like to try again?(y/n) \n").strip()
         if retry.lower() == 'y':
             return authenticate_gmail(user_id)
@@ -51,7 +54,10 @@ def authenticate_docs(user_id: str):
         if user.get("doc_connection_id", False):
             composio.connected_accounts.delete(user.get("doc_connection_id"))
     except Exception as e:
-        composio.connected_accounts.delete(connection_request.id)
+        try:
+            composio.connected_accounts.delete(connection_request.id)
+        except Exception as f:
+            pass
         retry = input("⏱ Google Docs authentication timed out. Would you like to try again?(y/n) \n").strip()
         if retry.lower() == 'y':
             return authenticate_docs(user_id)

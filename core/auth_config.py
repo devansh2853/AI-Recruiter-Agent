@@ -6,9 +6,6 @@ gmail_auth_config = composio.auth_configs.create(
     options = {
     'type': "use_composio_managed_auth",
     'auth_scheme': "OAUTH2",
-    "credentials": {
-        'scopes': 'https://www.googleapis.com/auth/gmail.modify'
-        }
     }
 )
 
