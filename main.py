@@ -42,33 +42,39 @@ def repl():
                     while not userId:
                         userId = input("Please enter valid username").strip()
                     print("Connecting to Gmail..... \n")
-                    authenticate_gmail(userId)
-                    saveuser(userId, True, False)
+                    gmail_connect = authenticate_gmail(userId)
+                    if gmail_connect != 0:
+                        saveuser(userId, True, False, gmail_connect, 0)
                     print("Connecting to Google Documents..... \n")
-                    authenticate_docs(userId)
-                    saveuser(userId, True, True)
+                    doc_connect = authenticate_docs(userId)
+                    if doc_connect != 0:
+                        saveuser(userId, False, True, 0, doc_connect)
                 else:
                     if user['gmail'] and user['docs']:
                         rewrite = input("Connections found. Would you like to overwrite them? (y/n)").strip()
                         if (rewrite.lower() == 'y'):
                             userId = user['userId']
                             print("Connecting to Gmail..... \n")
-                            authenticate_gmail(userId)
-                            saveuser(userId, True, False)
+                            gmail_connect = authenticate_gmail(userId)
+                            if gmail_connect != 0:
+                                saveuser(userId, True, False, gmail_connect, 0)
                             print("Connecting to Google Documents..... \n")
-                            authenticate_docs(userId)
-                            saveuser(userId, True, True)
+                            doc_connect = authenticate_docs(userId)
+                            if doc_connect != 0:
+                                saveuser(userId, False, True, 0, doc_connect)
 
                     elif not user['gmail']:
                         print("Connecting to Gmail..... \n")
-                        authenticate_gmail(userId)
                         print("Docs already connected")
-                        saveuser(user['userId'], True, True)
+                        gmail_connect = authenticate_gmail(userId)
+                        if gmail_connect != 0:
+                            saveuser(userId, True, True, gmail_connect, 0)
                     elif not user['docs']:
                         print("Gmail already connected")
                         print("Connecting to Google Documents..... \n")
-                        authenticate_docs(userId)
-                        saveuser(user['userId'], True, True)
+                        doc_connect = authenticate_docs(userId)
+                        if doc_connect != 0:
+                            saveuser(userId, True, True, 0, doc_connect)
 
 
             elif command.startswith("resume "):
