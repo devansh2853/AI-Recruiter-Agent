@@ -36,7 +36,7 @@ uv sync  # Install dependencies
 Run the auth config script to create Gmail and Google Docs auth configs:
 
 ```bash
-uv python core/auth_config.py
+uv run python core/auth_config.py
 ```
 
 Copy the printed auth config IDs into your `.env` file.

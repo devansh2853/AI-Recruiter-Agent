@@ -64,12 +64,14 @@ def repl():
                                 saveuser(userId, False, True, 0, doc_connect)
 
                     elif not user['gmail']:
+                        userId = user['userId']
                         print("Connecting to Gmail..... \n")
                         print("Docs already connected")
                         gmail_connect = authenticate_gmail(userId)
                         if gmail_connect != 0:
                             saveuser(userId, True, True, gmail_connect, 0)
                     elif not user['docs']:
+                        userId = user['userId']
                         print("Gmail already connected")
                         print("Connecting to Google Documents..... \n")
                         doc_connect = authenticate_docs(userId)

@@ -11,25 +11,6 @@ docs_auth_config_id = os.getenv('AUTHCFG_GDOCS')
 CONNECTIONS_FILE = "connections.json"
 
 
-# def authenticate_gmail(user_id: str):
-#     try:
-#         connection_request = composio.connected_accounts.initiate(
-#             user_id=user_id,
-#             auth_config_id=gmail_auth_config_id,
-#         )
-#         print(
-#             f"Visit this URL to authenticate Gmail: {connection_request.redirect_url}"
-#         )
-#         # This will wait for the auth flow to be completed
-#         connection_request.wait_for_connection(timeout=1)
-#     except Exception as e:
-#         retry = input("⏱ Gmail authentication timed out. Would you like to try again?(y/n) \n").strip()
-#         if retry.lower() == 'y':
-#             authenticate_gmail(user_id)
-#         else: 
-#             return 0
-#     return connection_request.id
-
 def authenticate_gmail(user_id: str):
     user = getuser()
     connection_request = composio.connected_accounts.initiate(
@@ -55,26 +36,6 @@ def authenticate_gmail(user_id: str):
     return connection_request.id
 
 
-# def authenticate_docs(user_id: str):
-#     try:
-#         connection_request = composio.connected_accounts.initiate(
-#             user_id=user_id,
-#             auth_config_id=docs_auth_config_id,
-#         )
-#         print(
-#             f"Visit this URL to authenticate Google Docs: {connection_request.redirect_url}"
-#         )
-#         # This will wait for the auth flow to be completed
-#         connection_request.wait_for_connection(timeout=1)
-#     except Exception as e:
-#         retry = input("⏱ Google Docs authentication timed out. Would you like to try again?(y/n) \n").strip()
-#         if retry.lower() == 'y':
-#             authenticate_docs(user_id)
-#         else: 
-#             return 0
-#     return connection_request.id
-
-
 def authenticate_docs(user_id: str):
     user = getuser()
     connection_request = composio.connected_accounts.initiate(
@@ -86,7 +47,7 @@ def authenticate_docs(user_id: str):
     )
     try:
         # This will wait for the auth flow to be completed
-        connection_request.wait_for_connection(timeout=3)
+        connection_request.wait_for_connection(timeout=300)
         if user.get("doc_connection_id", False):
             composio.connected_accounts.delete(user.get("doc_connection_id"))
     except Exception as e:
